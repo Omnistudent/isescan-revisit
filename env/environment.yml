@@ -1,0 +1,10 @@
+name: isescan-revisit
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python>=3.10
+  - isescan
+  - snakemake
+  - pandas
+  - pyyaml

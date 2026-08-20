@@ -1,0 +1,63 @@
+import pandas as pd
+from pathlib import Path
+
+configfile: "config/paths.yaml"
+
+samples = pd.read_csv("config/samples.tsv", sep="\t").set_index("sample")
+
+RAW = Path(config["data_raw"])
+OUT = Path(config["isescan_outdir"])
+
+rule all:
+    input:
+        expand(str(OUT / "{sample}/{sample}.tsv"), sample=samples.index),
+        "results/tables/isescan_summary.tsv"
+
+rule isescan:
+    input:
+        fasta=lambda w: str(RAW / samples.loc[w.sample, "fasta"])
+    output:
+        tsv=str(OUT / "{sample}/{sample}.tsv"),
+        gff=str(OUT / "{sample}/{sample}.gff"),
+        summary=str(OUT / "{sample}/{sample}.sum")
+    params:
+        outdir=lambda w: str(OUT / w.sample),
+        nthread=config["nthread"],
+        extra="--removeShortIS" if config["remove_short_is"] else ""
+    log:
+        "results/logs/isescan_{sample}.log"
+    shell:
+        """
+        mkdir -p {params.outdir}
+        isescan.py \
+          --seqfile {input.fasta} \
+          --output {params.outdir} \
+          --nthread {params.nthread} \
+          {params.extra} \
+          > {log} 2>&1
+
+        tsv=$(find {params.outdir} -name '*.tsv' ! -path '*/proteome/*' ! -path '*/hmm/*' | head -n 1)
+        gff=$(find {params.outdir} -name '*.gff' ! -path '*/proteome/*' ! -path '*/hmm/*' | head -n 1)
+        sum=$(find {params.outdir} -name '*.sum' ! -path '*/proteome/*' ! -path '*/hmm/*' | head -n 1)
+        if [ -z "$tsv" ] || [ -z "$gff" ] || [ -z "$sum" ]; then
+          echo "ISEScan output saknas" >&2
+          exit 1
+        fi
+        mv "$tsv" {output.tsv}
+        mv "$gff" {output.gff}
+        mv "$sum" {output.summary}
+        """
+
+rule summarize:
+    input:
+        expand(str(OUT / "{sample}/{sample}.tsv"), sample=samples.index)
+    output:
+        "results/tables/isescan_summary.tsv"
+    run:
+        frames = []
+        for path in input:
+            sample = Path(path).stem
+            df = pd.read_csv(path, sep="\t")
+            df.insert(0, "sample", sample)
+            frames.append(df)
+        pd.concat(frames, ignore_index=True).to_csv(output[0], sep="\t", index=False)

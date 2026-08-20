@@ -1,0 +1,10 @@
+results/isescan/
+results/logs/
+.snakemake/
+__pycache__/
+*.fna
+*.fa
+*.fasta
+*.faa
+*.gbk
+*.gbff

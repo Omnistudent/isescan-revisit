@@ -1,0 +1,8 @@
+# Alla sökvägar på ett ställe. Ändra bara här.
+data_raw: /mnt/c/Users/Eris/data/isescan-revisit/raw
+results: results
+isescan_outdir: results/isescan
+
+# ISEScan-inställningar
+nthread: 2
+remove_short_is: false
