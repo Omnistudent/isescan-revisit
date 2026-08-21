@@ -156,3 +156,18 @@ git remote add origin https://github.com/DITTANVANDARNAMN/isescan-revisit.git
 git branch -M main
 git push -u origin main
 Inloggning mot GitHub med token eller gh auth login, inte vanligt lösenord.
+
+## 2026-08-21 — Nedladdning av lista av prokaryot-genom
+Skapade filen meta för listan med genom
+Kommando:cd ~/isescan-revisit
+Kommando:mkdir -p data/meta
+
+
+## 2026-08-21 — Nedladdning av lista av prokaryot-genom
+Laddade ner listan med bakteriegenom från NCBI
+Kommando:curl -L -o data/meta/assembly_summary_refseq_bacteria_2026-08-21.txt \
+  https://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt
+
+## 2026-08-21
+Tillagt i .gitignore:
+data/meta/assembly_summary_refseq_bacteria_2026-08-21.txt
