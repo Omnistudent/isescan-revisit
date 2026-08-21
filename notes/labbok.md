@@ -171,3 +171,18 @@ Kommando:curl -L -o data/meta/assembly_summary_refseq_bacteria_2026-08-21.txt \
 ## 2026-08-21
 Tillagt i .gitignore:
 data/meta/assembly_summary_refseq_bacteria_2026-08-21.txt
+
+## 2026-08-21
+Skapade program för att välja genom slumpmässigt.
+/scripts/~/isescan-revisit/scripts/select_ncbi_sample.py
+
+Skriptet läser summary-filen, tar bara latest + full + inte exkluderade från RefSeq, slumpar 20 complete och 20 contig med seed 42, och skriver config/ncbi_sample.tsv med accession, organism, ftp_path och tänkt FASTA-namn. Ingen nedladdning.
+Kör från ~/isescan-revisit:
+Bashconda activate isescan-revisit
+python scripts/select_ncbi_sample.py \
+  --summary data/meta/assembly_summary_refseq_bacteria_2026-08-21.txt \
+  --out config/ncbi_sample.tsv \
+  --n-complete 20 \
+  --n-contig 20 \
+  --seed 42
+Byt datum i --summary om din fil heter något annat.
