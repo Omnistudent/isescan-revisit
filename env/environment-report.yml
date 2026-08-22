@@ -1,0 +1,12 @@
+name: isescan-report
+channels:
+  - defaults
+dependencies:
+  - r-base
+  - r-tidyverse
+  - r-plotly
+  - r-readr
+  - r-dt
+  - python=3.11
+  - quarto
+prefix: /home/eris/miniconda3/envs/isescan-report

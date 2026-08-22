@@ -244,3 +244,20 @@ python scripts/build_genome_stats.py
 head results/tables/genome_stats.tsv
 
 Allt fungerade.
+
+## 2026-08-22 - Ny conda-miljö för statistik
+conda create -n isescan-report -c conda-forge python=3.11 quarto r-base r-plotly r-dt r-readr r-tidyverse
+conda activate isescan-report
+quarto --version
+1.9.38
+
+## 2026-08-22
+Körde 
+conda env export --from-history > env/environment-report.yml
+
+## 2026-08-22 — rapportmiljö
+Beslut: två conda-miljöer.
+- isescan-revisit = ISEScan + Python-statistik
+- isescan-report = Quarto + R (plotly, DT, readr, tidyverse)
+Skapad med conda-forge. Export: env/environment-report.yml
+Rendera alltid från ~/isescan-revisit med den andra miljön aktiverad.
