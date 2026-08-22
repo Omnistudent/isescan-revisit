@@ -261,3 +261,7 @@ Beslut: två conda-miljöer.
 - isescan-report = Quarto + R (plotly, DT, readr, tidyverse)
 Skapad med conda-forge. Export: env/environment-report.yml
 Rendera alltid från ~/isescan-revisit med den andra miljön aktiverad.
+
+## 2026-08-22 — första quarto-körningen
+quarto render reports/is_oversikt.qmd
+lyckades

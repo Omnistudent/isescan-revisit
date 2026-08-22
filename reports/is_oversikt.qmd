@@ -1,0 +1,59 @@
+---
+title: "IS-översikt"
+format:
+  dashboard:
+    theme: default
+---
+
+```{r}
+#| echo: false
+library(readr)
+library(plotly)
+library(DT)
+
+stats <- read_tsv("../results/tables/genome_stats.tsv", show_col_types = FALSE)
+```
+
+## Rad {height="20%"}
+
+```{r}
+#| content: valuebox
+#| title: "Genom"
+list(value = nrow(stats))
+```
+
+```{r}
+#| content: valuebox
+#| title: "Median % IS"
+list(value = round(median(stats$pct_genome_is, na.rm = TRUE), 2))
+```
+
+## Rad
+
+```{r}
+#| title: "Genomstorlek mot andel IS"
+plot_ly(
+  stats,
+  x = ~genome_bp / 1e6,
+  y = ~pct_genome_is,
+  color = ~assembly_level,
+  text = ~paste(sample, top_family, sep = "<br>"),
+  hoverinfo = "text",
+  type = "scatter",
+  mode = "markers"
+) |>
+  layout(xaxis = list(title = "Genom (Mbp)"), yaxis = list(title = "% IS"))
+```
+
+## Rad
+
+```{r}
+#| title: "Klickbar tabell"
+datatable(
+  stats[, c("sample", "assembly_level", "genome_bp", "n_contigs",
+            "n50", "n_is", "n_complete", "n_partial", "pct_genome_is",
+            "top_family")],
+  options = list(pageLength = 15),
+  filter = "top"
+)
+```
