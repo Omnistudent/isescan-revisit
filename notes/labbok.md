@@ -221,3 +221,26 @@ och sedan på riktigt
 snakemake -s workflow/Snakefile -c 2
 
 ## 2026-08-22
+Körningav icescan på 40 genom gick bra.
+
+## 2026-08-22
+Installerar quarto och R
+med sudo apt install r-base
+
+R --version ger:
+R version 4.5.2 (2025-10-31)
+
+## 2026-08-22 — analyslager
+Beslut: Quarto + R i WSL, inte Windows.
+Installerat: r-base via apt.
+Nästa: genome_stats.tsv från ISEScan-TSV + FASTA.
+Rör inte workflow/Snakefile för det här steget.
+
+## 2026-08-22 — script som sammanfattar resultat
+Byggde scripts/build_genome_stats.py med grok.
+
+Körde conda activate isescan-revisit
+python scripts/build_genome_stats.py
+head results/tables/genome_stats.tsv
+
+Allt fungerade.
