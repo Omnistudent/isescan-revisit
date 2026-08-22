@@ -186,3 +186,38 @@ python scripts/select_ncbi_sample.py \
   --n-contig 20 \
   --seed 42
 Byt datum i --summary om din fil heter något annat.
+
+## 2026-08-21
+Skapade (med Grok) programmet scripts/download_ncbi_sample.py
+Det laddar ner filerna i config/ncbi_sample.tsv till .fna-filer, med kommandot
+Kommando: conda activate isescan-revisit
+python scripts/download_ncbi_sample.py \
+  --samples config/ncbi_sample.tsv \
+  --outdir data/raw \
+  --log results/logs/download_failures.log
+
+## 2026-08-21
+Filerna ncbi_sample.tsv och config/samples.tsv är olika, samples.tsv innehåller de filer som skall köras.
+Följande script kopierar från ncbi_sample till samples.tsv
+python - <<'PY'
+import pandas as pd
+ncbi = pd.read_csv("config/ncbi_sample.tsv", sep="\t")
+out = ncbi[["sample", "fasta"]].copy()
+out["source"] = "ncbi"
+out["assembly_level"] = ncbi["assembly_level"]
+out.to_csv("config/samples.tsv", sep="\t", index=False)
+PY
+
+Kopieringen gick bra
+
+## 2026-08-21
+Ändrade i config.yaml, eftersom filerna laddades ner till linux-foldrarna
+data_raw: /home/eris/isescan-revisit/data/raw
+
+## 2026-08-21
+Körde först dry run
+snakemake -s workflow/Snakefile -n
+och sedan på riktigt
+snakemake -s workflow/Snakefile -c 2
+
+## 2026-08-22

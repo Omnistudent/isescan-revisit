@@ -1,5 +1,5 @@
 # Alla sökvägar på ett ställe. Ändra bara här.
-data_raw: /mnt/c/Users/Eris/data/isescan-revisit/raw
+data_raw: /home/eris/isescan-revisit/data/raw
 results: results
 isescan_outdir: results/isescan
 
