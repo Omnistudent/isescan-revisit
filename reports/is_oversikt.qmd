@@ -37,7 +37,7 @@ plot_ly(
   x = ~genome_bp / 1e6,
   y = ~pct_genome_is,
   color = ~assembly_level,
-  text = ~paste(sample, top_family, sep = "<br>"),
+  text = ~paste(sample, organism_name, top_family, sep = "<br>"),
   hoverinfo = "text",
   type = "scatter",
   mode = "markers"
@@ -50,9 +50,9 @@ plot_ly(
 ```{r}
 #| title: "Klickbar tabell"
 datatable(
-  stats[, c("sample", "assembly_level", "genome_bp", "n_contigs",
-            "n50", "n_is", "n_complete", "n_partial", "pct_genome_is",
-            "top_family")],
+  stats[, c("sample", "organism_name", "assembly_level", "genome_bp",
+            "n_contigs", "n50", "n_is", "n_complete", "n_partial",
+            "pct_genome_is", "top_family")],
   options = list(pageLength = 15),
   filter = "top"
 )

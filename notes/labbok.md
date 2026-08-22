@@ -265,3 +265,10 @@ Rendera alltid från ~/isescan-revisit med den andra miljön aktiverad.
 ## 2026-08-22 — första quarto-körningen
 quarto render reports/is_oversikt.qmd
 lyckades
+
+
+## 2026-08-22 - körde igen med nytt skript som lägger till organismnamn
+conda activate isescan-revisit
+cd ~/isescan-revisit
+python scripts/build_genome_stats.py
+

@@ -13,3 +13,5 @@ data/meta/assembly_summary_refseq_bacteria_2026-08-21.txt
 .~lock.*
 reports/*.html
 reports/.quarto/
+reports/*_files/
+results/tables/.gitkeep
