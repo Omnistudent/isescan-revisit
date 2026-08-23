@@ -78,6 +78,19 @@ Korta contigar (< 500 bp, `min_contig_bp` i `config/paths.yaml`) filtreras bort 
 Vid `scanner=both` skrivs `results/tables/scanner_compare.tsv`.  
 Snakemake hoppar över genom som redan är klara.
 
+**CNN-tillägg (mönster, inte homology)**  
+ISEScan/rust-ise förblir anroparen. En liten 1D-CNN tränas på deras fönster (none/partial/complete) och skannar sen genomet efter samma DNA-mönster — bland annat avhuggna IS i contig-ändar. Gemma/Mistral passar inte här.
+
+```bash
+conda env create -f env/environment-ml.yml   # en gång; GPU-PyTorch
+snakemake -s workflow/Snakefile -c 8 --config samples_tsv=config/samples_benchmark.tsv scanner=both use_ml=true
+```
+
+Träning håller `GCF_014335185v1` (contig) utanför. CNN-intervall som inte överlappar homology läggs till som `family=ML` under `results/ml_merged/`.
+
+Fyra genom räcker inte för att generalisera: holdout-F1 är låg. Homology (ISEScan/rust-ise) är fortfarande sanningen; CNN:en är ett extra mönsterfilter som blir vettigt först med fler genom.
+
+
 Litet jämförelseset (fyra små genom):
 
 ```bash

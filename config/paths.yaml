@@ -15,3 +15,14 @@ min_contig_bp: 500
 remove_short_is: false
 rustise_gpu: false
 rustise_strict: false
+
+# CNN second pass (ISEScan labels as teacher; does not replace homology)
+use_ml: true
+ml_outdir: results/ml
+ml_merged_outdir: results/ml_merged
+ml_window: 1024
+ml_stride: 256
+ml_min_prob: 0.65
+ml_holdout: GCF_014335185v1
+ml_teacher: isescan
+ml_python: conda run -n isescan-ml --no-capture-output python

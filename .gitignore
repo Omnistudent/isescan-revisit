@@ -1,7 +1,8 @@
 results/isescan/
 results/rust-ise/
 results/filtered/
-results/logs/
+results/ml/
+results/ml_merged/
 resources/rust-ise-db/
 data/raw/
 .snakemake/

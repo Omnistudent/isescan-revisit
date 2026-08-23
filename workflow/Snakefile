@@ -17,6 +17,16 @@ min_contig_bp = int(config.get("min_contig_bp", 500))
 remove_short_is = bool(config.get("remove_short_is", False))
 rustise_gpu = bool(config.get("rustise_gpu", False))
 rustise_strict = bool(config.get("rustise_strict", False))
+use_ml = bool(config.get("use_ml", False))
+ml_dir = Path(config.get("ml_outdir", "results/ml"))
+ml_merged_dir = Path(config.get("ml_merged_outdir", "results/ml_merged"))
+ml_window = int(config.get("ml_window", 1024))
+ml_stride = int(config.get("ml_stride", 256))
+ml_min_prob = float(config.get("ml_min_prob", 0.65))
+ml_holdout = str(config.get("ml_holdout", "GCF_014335185v1"))
+ml_teacher = str(config.get("ml_teacher", "isescan"))
+ml_python = str(config.get("ml_python", "python"))
+teacher_dir = isescan_dir if ml_teacher == "isescan" else rustise_dir
 SAMPLE_IDS = list(samples.index)
 
 
@@ -34,6 +44,11 @@ def scanner_targets():
         targets.append("results/tables/rustise_summary.tsv")
     if scanner == "both":
         targets.append("results/tables/scanner_compare.tsv")
+    if use_ml:
+        targets.append(str(ml_dir / "is_cnn.pt"))
+        targets += [str(ml_dir / s / f"{s}.tsv") for s in SAMPLE_IDS]
+        targets += [str(ml_merged_dir / s / f"{s}.tsv") for s in SAMPLE_IDS]
+        targets.append("results/tables/ml_summary.tsv")
     return targets
 
 
@@ -218,3 +233,96 @@ rule compare_scanners:
           --rustise-dir {params.rustise_dir} \
           --out {output}
         """
+
+
+rule ml_windows:
+    input:
+        fastas=expand(str(filtered_dir / "{sample}.fna"), sample=SAMPLE_IDS),
+        teacher=expand(
+            str(teacher_dir / "{sample}" / "{sample}.tsv"),
+            sample=SAMPLE_IDS,
+        ),
+    output:
+        npz=str(ml_dir / "windows.npz"),
+    params:
+        samples=samples_tsv,
+        teacher_dir=str(teacher_dir),
+        window=ml_window,
+        stride=ml_stride,
+        holdout=ml_holdout,
+        py=ml_python,
+    shell:
+        r"""
+        {params.py} scripts/build_ml_windows.py \
+          --paths config/paths.yaml \
+          --samples {params.samples} \
+          --teacher-dir {params.teacher_dir} \
+          --window {params.window} \
+          --stride {params.stride} \
+          --holdout {params.holdout} \
+          --out {output.npz}
+        """
+
+
+rule ml_train:
+    input:
+        npz=str(ml_dir / "windows.npz"),
+    output:
+        model=str(ml_dir / "is_cnn.pt"),
+    params:
+        py=ml_python,
+    shell:
+        r"""
+        {params.py} scripts/train_is_cnn.py --data {input.npz} --out {output.model}
+        """
+
+
+rule ml_predict:
+    input:
+        fasta=str(filtered_dir / "{sample}.fna"),
+        model=str(ml_dir / "is_cnn.pt"),
+    output:
+        tsv=str(ml_dir / "{sample}" / "{sample}.tsv"),
+    params:
+        window=ml_window,
+        stride=ml_stride,
+        min_prob=ml_min_prob,
+        py=ml_python,
+    shell:
+        r"""
+        {params.py} scripts/predict_is_cnn.py \
+          --fasta {input.fasta} \
+          --model {input.model} \
+          --out {output.tsv} \
+          --window {params.window} \
+          --stride {params.stride} \
+          --min-prob {params.min_prob}
+        """
+
+
+def homology_tsv(wildcards):
+    sample = wildcards.sample
+    if scanner in ("isescan", "both"):
+        return str(isescan_dir / sample / f"{sample}.tsv")
+    return str(rustise_dir / sample / f"{sample}.tsv")
+
+
+rule ml_merge:
+    input:
+        base=homology_tsv,
+        ml=str(ml_dir / "{sample}" / "{sample}.tsv"),
+    output:
+        tsv=str(ml_merged_dir / "{sample}" / "{sample}.tsv"),
+    shell:
+        r"""
+        python scripts/merge_ml_hits.py --base {input.base} --ml {input.ml} --out {output.tsv}
+        """
+
+
+rule summarize_ml:
+    input:
+        tsvs=expand(str(ml_merged_dir / "{sample}" / "{sample}.tsv"), sample=SAMPLE_IDS),
+    output:
+        "results/tables/ml_summary.tsv",
+    run:
+        summary_rows(input.tsvs).to_csv(output[0], sep="\t", index=False)
