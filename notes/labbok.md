@@ -272,3 +272,35 @@ conda activate isescan-revisit
 cd ~/isescan-revisit
 python scripts/build_genome_stats.py
 
+## 2026-08-22 - ai-skrev programmet scripts/increase_select_ncbi.py
+Det fungerade och skrev 40 nya rader i ncbi_sample.tsv
+
+conda activate isescan-revisit
+cd ~/isescan-revisit
+
+python scripts/increase_select_ncbi.py --n-complete 20 --n-contig 20 --seed 43 --dry-run
+python scripts/increase_select_ncbi.py --n-complete 20 --n-contig 20 --seed 43
+
+Körde sedan 
+python scripts/download_ncbi_sample.py
+
+## 2026-08-22 Skrev med ai programmet sync_samples_from_ncbi.py
+Detta program för över rader från config/ncbi_sample.tsv till samples.tsv
+Därefter
+python scripts/sync_samples_from_ncbi.py (körde programmet)
+snakemake -s workflow/Snakefile -c 2
+python scripts/build_genome_stats.py
+conda activate isescan-report
+quarto render reports/is_oversikt.qmd
+
+allt gick bra, nu 80 genom
+
+## 2026-08-22
+Körde
+conda activate isescan-revisit
+python scripts/increase_select_ncbi.py --n-complete 30 --n-contig 30 --seed 44
+download_ncbi_sample.py
+
+
+Ändrade /README.md
+

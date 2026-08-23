@@ -1,41 +1,81 @@
-sample	fasta	source	assembly_level
-GCF_013378015v1	GCF_013378015.1_genomic.fna	ncbi	complete
-GCF_006547005v1	GCF_006547005.1_genomic.fna	ncbi	complete
-GCF_023035295v1	GCF_023035295.1_genomic.fna	ncbi	complete
-GCF_056822085v1	GCF_056822085.1_genomic.fna	ncbi	complete
-GCF_004355345v1	GCF_004355345.1_genomic.fna	ncbi	complete
-GCF_057730775v1	GCF_057730775.1_genomic.fna	ncbi	complete
-GCF_058093155v1	GCF_058093155.1_genomic.fna	ncbi	complete
-GCF_038712055v1	GCF_038712055.1_genomic.fna	ncbi	complete
-GCF_030908385v1	GCF_030908385.1_genomic.fna	ncbi	complete
-GCF_000834255v1	GCF_000834255.1_genomic.fna	ncbi	complete
-GCF_024749645v1	GCF_024749645.1_genomic.fna	ncbi	complete
-GCF_046736325v1	GCF_046736325.1_genomic.fna	ncbi	complete
-GCF_011044475v1	GCF_011044475.1_genomic.fna	ncbi	complete
-GCF_022559345v1	GCF_022559345.1_genomic.fna	ncbi	complete
-GCF_039783285v1	GCF_039783285.1_genomic.fna	ncbi	complete
-GCF_051132495v1	GCF_051132495.1_genomic.fna	ncbi	complete
-GCF_040554455v1	GCF_040554455.1_genomic.fna	ncbi	complete
-GCF_003628555v1	GCF_003628555.1_genomic.fna	ncbi	complete
-GCF_900489725v1	GCF_900489725.1_genomic.fna	ncbi	complete
-GCF_050506935v1	GCF_050506935.1_genomic.fna	ncbi	complete
-GCF_025403965v1	GCF_025403965.1_genomic.fna	ncbi	contig
-GCF_039571325v1	GCF_039571325.1_genomic.fna	ncbi	contig
-GCF_900583485v1	GCF_900583485.1_genomic.fna	ncbi	contig
-GCF_013414495v1	GCF_013414495.1_genomic.fna	ncbi	contig
-GCF_021286605v1	GCF_021286605.1_genomic.fna	ncbi	contig
-GCF_040326695v1	GCF_040326695.1_genomic.fna	ncbi	contig
-GCF_049537415v1	GCF_049537415.1_genomic.fna	ncbi	contig
-GCF_003949395v1	GCF_003949395.1_genomic.fna	ncbi	contig
-GCF_014335185v1	GCF_014335185.1_genomic.fna	ncbi	contig
-GCF_015912065v1	GCF_015912065.1_genomic.fna	ncbi	contig
-GCF_014288005v1	GCF_014288005.1_genomic.fna	ncbi	contig
-GCF_009675425v1	GCF_009675425.1_genomic.fna	ncbi	contig
-GCF_054357135v1	GCF_054357135.1_genomic.fna	ncbi	contig
-GCF_045887855v1	GCF_045887855.1_genomic.fna	ncbi	contig
-GCF_000496935v2	GCF_000496935.2_genomic.fna	ncbi	contig
-GCF_030850225v1	GCF_030850225.1_genomic.fna	ncbi	contig
-GCF_059428335v1	GCF_059428335.1_genomic.fna	ncbi	contig
-GCF_002926165v1	GCF_002926165.1_genomic.fna	ncbi	contig
-GCF_003185325v1	GCF_003185325.1_genomic.fna	ncbi	contig
-GCF_052139315v1	GCF_052139315.1_genomic.fna	ncbi	contig
+sample	fasta	source	assembly_level	organism_name	accession
+GCF_013378015v1	GCF_013378015.1_genomic.fna	ncbi	complete		
+GCF_006547005v1	GCF_006547005.1_genomic.fna	ncbi	complete		
+GCF_023035295v1	GCF_023035295.1_genomic.fna	ncbi	complete		
+GCF_056822085v1	GCF_056822085.1_genomic.fna	ncbi	complete		
+GCF_004355345v1	GCF_004355345.1_genomic.fna	ncbi	complete		
+GCF_057730775v1	GCF_057730775.1_genomic.fna	ncbi	complete		
+GCF_058093155v1	GCF_058093155.1_genomic.fna	ncbi	complete		
+GCF_038712055v1	GCF_038712055.1_genomic.fna	ncbi	complete		
+GCF_030908385v1	GCF_030908385.1_genomic.fna	ncbi	complete		
+GCF_000834255v1	GCF_000834255.1_genomic.fna	ncbi	complete		
+GCF_024749645v1	GCF_024749645.1_genomic.fna	ncbi	complete		
+GCF_046736325v1	GCF_046736325.1_genomic.fna	ncbi	complete		
+GCF_011044475v1	GCF_011044475.1_genomic.fna	ncbi	complete		
+GCF_022559345v1	GCF_022559345.1_genomic.fna	ncbi	complete		
+GCF_039783285v1	GCF_039783285.1_genomic.fna	ncbi	complete		
+GCF_051132495v1	GCF_051132495.1_genomic.fna	ncbi	complete		
+GCF_040554455v1	GCF_040554455.1_genomic.fna	ncbi	complete		
+GCF_003628555v1	GCF_003628555.1_genomic.fna	ncbi	complete		
+GCF_900489725v1	GCF_900489725.1_genomic.fna	ncbi	complete		
+GCF_050506935v1	GCF_050506935.1_genomic.fna	ncbi	complete		
+GCF_025403965v1	GCF_025403965.1_genomic.fna	ncbi	contig		
+GCF_039571325v1	GCF_039571325.1_genomic.fna	ncbi	contig		
+GCF_900583485v1	GCF_900583485.1_genomic.fna	ncbi	contig		
+GCF_013414495v1	GCF_013414495.1_genomic.fna	ncbi	contig		
+GCF_021286605v1	GCF_021286605.1_genomic.fna	ncbi	contig		
+GCF_040326695v1	GCF_040326695.1_genomic.fna	ncbi	contig		
+GCF_049537415v1	GCF_049537415.1_genomic.fna	ncbi	contig		
+GCF_003949395v1	GCF_003949395.1_genomic.fna	ncbi	contig		
+GCF_014335185v1	GCF_014335185.1_genomic.fna	ncbi	contig		
+GCF_015912065v1	GCF_015912065.1_genomic.fna	ncbi	contig		
+GCF_014288005v1	GCF_014288005.1_genomic.fna	ncbi	contig		
+GCF_009675425v1	GCF_009675425.1_genomic.fna	ncbi	contig		
+GCF_054357135v1	GCF_054357135.1_genomic.fna	ncbi	contig		
+GCF_045887855v1	GCF_045887855.1_genomic.fna	ncbi	contig		
+GCF_000496935v2	GCF_000496935.2_genomic.fna	ncbi	contig		
+GCF_030850225v1	GCF_030850225.1_genomic.fna	ncbi	contig		
+GCF_059428335v1	GCF_059428335.1_genomic.fna	ncbi	contig		
+GCF_002926165v1	GCF_002926165.1_genomic.fna	ncbi	contig		
+GCF_003185325v1	GCF_003185325.1_genomic.fna	ncbi	contig		
+GCF_052139315v1	GCF_052139315.1_genomic.fna	ncbi	contig		
+GCF_002844125v1	GCF_002844125.1_genomic.fna	ncbi	complete	Bacillus velezensis	GCF_002844125.1
+GCF_002356055v1	GCF_002356055.1_genomic.fna	ncbi	complete	Streptococcus intermedius	GCF_002356055.1
+GCF_023650475v1	GCF_023650475.1_genomic.fna	ncbi	complete	Alkalimarinus coralli	GCF_023650475.1
+GCF_016549395v1	GCF_016549395.1_genomic.fna	ncbi	complete	Streptococcus oralis	GCF_016549395.1
+GCF_041080865v1	GCF_041080865.1_genomic.fna	ncbi	complete	Psychromonas sp. MME1	GCF_041080865.1
+GCF_013734035v1	GCF_013734035.1_genomic.fna	ncbi	complete	Klebsiella pneumoniae	GCF_013734035.1
+GCF_019047025v1	GCF_019047025.1_genomic.fna	ncbi	complete	Enterobacter roggenkampii	GCF_019047025.1
+GCF_000007645v1	GCF_000007645.1_genomic.fna	ncbi	complete	Staphylococcus epidermidis ATCC 12228	GCF_000007645.1
+GCF_030486685v2	GCF_030486685.2_genomic.fna	ncbi	complete	Corynebacterium pseudokroppenstedtii	GCF_030486685.2
+GCF_022558665v1	GCF_022558665.1_genomic.fna	ncbi	complete	Escherichia coli	GCF_022558665.1
+GCF_025560825v1	GCF_025560825.1_genomic.fna	ncbi	complete	Staphylococcus aureus	GCF_025560825.1
+GCF_031326185v1	GCF_031326185.1_genomic.fna	ncbi	complete	Acinetobacter bereziniae	GCF_031326185.1
+GCF_021459905v1	GCF_021459905.1_genomic.fna	ncbi	complete	Xylella fastidiosa subsp. multiplex	GCF_021459905.1
+GCF_045690235v1	GCF_045690235.1_genomic.fna	ncbi	complete	Streptococcus pyogenes	GCF_045690235.1
+GCF_029201565v1	GCF_029201565.1_genomic.fna	ncbi	complete	Devosia sp. SD17-2	GCF_029201565.1
+GCF_046713465v1	GCF_046713465.1_genomic.fna	ncbi	complete	Streptomyces griseobrunneus	GCF_046713465.1
+GCF_002056475v1	GCF_002056475.1_genomic.fna	ncbi	complete	Klebsiella pneumoniae	GCF_002056475.1
+GCF_000143145v1	GCF_000143145.1_genomic.fna	ncbi	complete	Hyphomicrobium denitrificans ATCC 51888	GCF_000143145.1
+GCF_040735975v1	GCF_040735975.1_genomic.fna	ncbi	complete	Pseudomonas aeruginosa	GCF_040735975.1
+GCF_013394285v1	GCF_013394285.1_genomic.fna	ncbi	complete	Acinetobacter baumannii	GCF_013394285.1
+GCF_032654585v1	GCF_032654585.1_genomic.fna	ncbi	contig	Bacillus halotolerans	GCF_032654585.1
+GCF_000718175v1	GCF_000718175.1_genomic.fna	ncbi	contig	Streptomyces exfoliatus	GCF_000718175.1
+GCF_964207855v1	GCF_964207855.1_genomic.fna	ncbi	contig	Klebsiella pneumoniae	GCF_964207855.1
+GCF_055453515v1	GCF_055453515.1_genomic.fna	ncbi	contig	Prevotella bivia	GCF_055453515.1
+GCF_013913335v1	GCF_013913335.1_genomic.fna	ncbi	contig	Pseudomonas aeruginosa	GCF_013913335.1
+GCF_052996805v1	GCF_052996805.1_genomic.fna	ncbi	contig	Escherichia coli	GCF_052996805.1
+GCF_018729415v1	GCF_018729415.1_genomic.fna	ncbi	contig	Bacillus velezensis	GCF_018729415.1
+GCF_021060425v1	GCF_021060425.1_genomic.fna	ncbi	contig	Helicobacter pylori	GCF_021060425.1
+GCF_026198445v1	GCF_026198445.1_genomic.fna	ncbi	contig	Klebsiella pneumoniae	GCF_026198445.1
+GCF_056724425v1	GCF_056724425.1_genomic.fna	ncbi	contig	Escherichia coli	GCF_056724425.1
+GCF_003339805v1	GCF_003339805.1_genomic.fna	ncbi	contig	Senegalimassilia anaerobia	GCF_003339805.1
+GCF_058074385v1	GCF_058074385.1_genomic.fna	ncbi	contig	Escherichia coli	GCF_058074385.1
+GCF_030403115v1	GCF_030403115.1_genomic.fna	ncbi	contig	Streptococcus suis	GCF_030403115.1
+GCF_019127635v1	GCF_019127635.1_genomic.fna	ncbi	contig	Bacteroides stercoris	GCF_019127635.1
+GCF_028479265v1	GCF_028479265.1_genomic.fna	ncbi	contig	Providencia sp. PROV221	GCF_028479265.1
+GCF_040982955v1	GCF_040982955.1_genomic.fna	ncbi	contig	Klebsiella pneumoniae	GCF_040982955.1
+GCF_019971485v1	GCF_019971485.1_genomic.fna	ncbi	contig	Aeromonas caviae	GCF_019971485.1
+GCF_030268465v1	GCF_030268465.1_genomic.fna	ncbi	contig	Megamonas funiformis	GCF_030268465.1
+GCF_001026845v1	GCF_001026845.1_genomic.fna	ncbi	contig	Corynebacterium diphtheriae bv. gravis str. ISS 4746	GCF_001026845.1
+GCF_003348885v1	GCF_003348885.1_genomic.fna	ncbi	contig	Vibrio cholerae	GCF_003348885.1
