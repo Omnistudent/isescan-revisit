@@ -3,61 +3,81 @@ from pathlib import Path
 
 configfile: "config/paths.yaml"
 
-samples = pd.read_csv("config/samples.tsv", sep="\t").set_index("sample")
+samples = pd.read_csv("config/samples.tsv", sep="\t").set_index("sample", drop=False)
+data_raw = Path(config["data_raw"])
+isescan_dir = Path(config.get("isescan_outdir", "results/isescan"))
+nthread = int(config.get("nthread", 2))
 
-RAW = Path(config["data_raw"])
-OUT = Path(config["isescan_outdir"])
+def fasta_of(wildcards):
+    return str(data_raw / samples.loc[wildcards.sample, "fasta"])
 
 rule all:
     input:
-        expand(str(OUT / "{sample}/{sample}.tsv"), sample=samples.index),
-        "results/tables/isescan_summary.tsv"
+        expand(
+            str(isescan_dir / "{sample}" / "{sample}.tsv"),
+            sample=list(samples.index),
+        ),
+        "results/tables/isescan_summary.tsv",
 
 rule isescan:
     input:
-        fasta=lambda w: str(RAW / samples.loc[w.sample, "fasta"])
+        fasta=fasta_of,
     output:
-        tsv=str(OUT / "{sample}/{sample}.tsv"),
-        gff=str(OUT / "{sample}/{sample}.gff"),
-        summary=str(OUT / "{sample}/{sample}.sum")
-    params:
-        outdir=lambda w: str(OUT / w.sample),
-        nthread=config["nthread"],
-        extra="--removeShortIS" if config["remove_short_is"] else ""
+        tsv=str(isescan_dir / "{sample}" / "{sample}.tsv"),
+        gff=str(isescan_dir / "{sample}" / "{sample}.gff"),
+        sum=str(isescan_dir / "{sample}" / "{sample}.sum"),
     log:
-        "results/logs/isescan_{sample}.log"
+        "results/logs/isescan_{sample}.log",
+    params:
+        outdir=str(isescan_dir / "{sample}"),
+        nthread=nthread,
+    threads: nthread
     shell:
-        """
+        r"""
+        set -euo pipefail
         mkdir -p {params.outdir}
-        isescan.py \
-          --seqfile {input.fasta} \
-          --output {params.outdir} \
-          --nthread {params.nthread} \
-          {params.extra} \
-          > {log} 2>&1
-
+        isescan.py --seqfile {input.fasta} --output {params.outdir} --nthread {params.nthread} > {log} 2>&1
         tsv=$(find {params.outdir} -name '*.tsv' ! -path '*/proteome/*' ! -path '*/hmm/*' | head -n 1)
         gff=$(find {params.outdir} -name '*.gff' ! -path '*/proteome/*' ! -path '*/hmm/*' | head -n 1)
         sum=$(find {params.outdir} -name '*.sum' ! -path '*/proteome/*' ! -path '*/hmm/*' | head -n 1)
-        if [ -z "$tsv" ] || [ -z "$gff" ] || [ -z "$sum" ]; then
-          echo "ISEScan output saknas" >&2
-          exit 1
+        if [ -z "$tsv" ]; then
+          printf "seqID\tfamily\tcluster\tisBegin\tisEnd\tisLen\ttype\n" > {output.tsv}
+        else
+          mv "$tsv" {output.tsv}
         fi
-        mv "$tsv" {output.tsv}
-        mv "$gff" {output.gff}
-        mv "$sum" {output.summary}
+        if [ -z "$gff" ]; then
+          printf "##gff-version 3\n" > {output.gff}
+        else
+          mv "$gff" {output.gff}
+        fi
+        if [ -z "$sum" ]; then
+          printf "seqid\tfamily\tnIS\n" > {output.sum}
+        else
+          mv "$sum" {output.sum}
+        fi
         """
 
 rule summarize:
     input:
-        expand(str(OUT / "{sample}/{sample}.tsv"), sample=samples.index)
+        tsvs=expand(
+            str(isescan_dir / "{sample}" / "{sample}.tsv"),
+            sample=list(samples.index),
+        ),
     output:
-        "results/tables/isescan_summary.tsv"
+        "results/tables/isescan_summary.tsv",
     run:
         frames = []
-        for path in input:
-            sample = Path(path).stem
+        for path in input.tsvs:
+            path = Path(path)
+            sample = path.stem
             df = pd.read_csv(path, sep="\t")
-            df.insert(0, "sample", sample)
-            frames.append(df)
+            if df.empty:
+                frames.append(pd.DataFrame({"sample": [sample], "n_is": [0]}))
+            else:
+                row = {"sample": sample, "n_is": len(df)}
+                if "type" in df.columns:
+                    types = df["type"].astype(str).str.lower()
+                    row["n_complete"] = int((types == "c").sum())
+                    row["n_partial"] = int((types == "p").sum())
+                frames.append(pd.DataFrame([row]))
         pd.concat(frames, ignore_index=True).to_csv(output[0], sep="\t", index=False)

@@ -338,3 +338,6 @@ GCF_000834255v1	tes
 
 Tabellen är tab-separerad.
 scripts/build_genome_stats.py inkorporerar nu informationen i genome_tags, och quarto ser till att en kolumn med tags visas i "genom-sektionen"
+
+## 2026-08-23
+Den tidigare versionen av workflow/snakefile krashade pga noll IS. Detta är nu korrigerat för i snakefile.

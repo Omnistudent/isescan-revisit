@@ -79,3 +79,63 @@ GCF_019971485v1	GCF_019971485.1_genomic.fna	ncbi	contig	Aeromonas caviae	GCF_019
 GCF_030268465v1	GCF_030268465.1_genomic.fna	ncbi	contig	Megamonas funiformis	GCF_030268465.1
 GCF_001026845v1	GCF_001026845.1_genomic.fna	ncbi	contig	Corynebacterium diphtheriae bv. gravis str. ISS 4746	GCF_001026845.1
 GCF_003348885v1	GCF_003348885.1_genomic.fna	ncbi	contig	Vibrio cholerae	GCF_003348885.1
+GCF_001017595v1	GCF_001017595.1_genomic.fna	ncbi	complete	Metamycoplasma hominis	GCF_001017595.1
+GCF_021496135v1	GCF_021496135.1_genomic.fna	ncbi	complete	Enterobacter hormaechei	GCF_021496135.1
+GCF_040761425v1	GCF_040761425.1_genomic.fna	ncbi	complete	Burkholderia sp. Ed8	GCF_040761425.1
+GCF_058092235v1	GCF_058092235.1_genomic.fna	ncbi	complete	Listeria monocytogenes	GCF_058092235.1
+GCF_047417375v1	GCF_047417375.1_genomic.fna	ncbi	complete	Chlamydia trachomatis	GCF_047417375.1
+GCF_022068525v1	GCF_022068525.1_genomic.fna	ncbi	complete	Streptococcus pneumoniae	GCF_022068525.1
+GCF_018199995v1	GCF_018199995.1_genomic.fna	ncbi	complete	Photobacterium sp. GJ3	GCF_018199995.1
+GCF_000172575v2	GCF_000172575.2_genomic.fna	ncbi	complete	Enterococcus faecalis OG1RF	GCF_000172575.2
+GCF_001593395v2	GCF_001593395.2_genomic.fna	ncbi	complete	Bacillus velezensis	GCF_001593395.2
+GCF_002257705v2	GCF_002257705.2_genomic.fna	ncbi	complete	Sporomusa silvacetica DSM 10669	GCF_002257705.2
+GCF_000750375v1	GCF_000750375.1_genomic.fna	ncbi	complete	Salmonella enterica subsp. enterica serovar Enteritidis	GCF_000750375.1
+GCF_002162255v1	GCF_002162255.1_genomic.fna	ncbi	complete	Histophilus somni	GCF_002162255.1
+GCF_051358245v1	GCF_051358245.1_genomic.fna	ncbi	complete	Acinetobacter baumannii	GCF_051358245.1
+GCF_056858075v1	GCF_056858075.1_genomic.fna	ncbi	complete	Pasteurella multocida	GCF_056858075.1
+GCF_048313085v1	GCF_048313085.1_genomic.fna	ncbi	complete	Fusobacterium animalis	GCF_048313085.1
+GCF_900475905v1	GCF_900475905.1_genomic.fna	ncbi	complete	Kingella kingae	GCF_900475905.1
+GCF_036865845v1	GCF_036865845.1_genomic.fna	ncbi	complete	Erwinia aphidicola	GCF_036865845.1
+GCF_000835145v1	GCF_000835145.1_genomic.fna	ncbi	complete	Bacillus amyloliquefaciens KHG19	GCF_000835145.1
+GCF_984668395v1	GCF_984668395.1_genomic.fna	ncbi	complete	Burkholderia arboris	GCF_984668395.1
+GCF_045041305v1	GCF_045041305.1_genomic.fna	ncbi	complete	Streptomyces sp. NBC_00096	GCF_045041305.1
+GCF_013834525v1	GCF_013834525.1_genomic.fna	ncbi	complete	Escherichia fergusonii	GCF_013834525.1
+GCF_903993035v2	GCF_903993035.2_genomic.fna	ncbi	complete	Klebsiella pneumoniae	GCF_903993035.2
+GCF_042214795v1	GCF_042214795.1_genomic.fna	ncbi	complete	Arcobacter iocasae	GCF_042214795.1
+GCF_033582035v1	GCF_033582035.1_genomic.fna	ncbi	complete	Thermaerobacter composti	GCF_033582035.1
+GCF_013341415v1	GCF_013341415.1_genomic.fna	ncbi	complete	Staphylococcus saprophyticus	GCF_013341415.1
+GCF_036507615v1	GCF_036507615.1_genomic.fna	ncbi	complete	Escherichia coli	GCF_036507615.1
+GCF_057815335v1	GCF_057815335.1_genomic.fna	ncbi	complete	Bacillus pumilus	GCF_057815335.1
+GCF_947250815v1	GCF_947250815.1_genomic.fna	ncbi	complete	Wolbachia endosymbiont (group B) of Nymphalis c-album	GCF_947250815.1
+GCF_023734295v1	GCF_023734295.1_genomic.fna	ncbi	complete	Latilactobacillus sakei	GCF_023734295.1
+GCF_056590175v1	GCF_056590175.1_genomic.fna	ncbi	complete	Salmonella enterica	GCF_056590175.1
+GCF_002053565v1	GCF_002053565.1_genomic.fna	ncbi	contig	Salmonella enterica	GCF_002053565.1
+GCF_031194955v1	GCF_031194955.1_genomic.fna	ncbi	contig	Escherichia marmotae	GCF_031194955.1
+GCF_000877925v1	GCF_000877925.1_genomic.fna	ncbi	contig	Staphylococcus aureus	GCF_000877925.1
+GCF_029849995v1	GCF_029849995.1_genomic.fna	ncbi	contig	Enterococcus faecium	GCF_029849995.1
+GCF_028550115v1	GCF_028550115.1_genomic.fna	ncbi	contig	Acinetobacter baumannii	GCF_028550115.1
+GCF_002982535v1	GCF_002982535.1_genomic.fna	ncbi	contig	Staphylococcus aureus	GCF_002982535.1
+GCF_020181635v2	GCF_020181635.2_genomic.fna	ncbi	contig	[Mycobacterium] zoologicum	GCF_020181635.2
+GCF_052245655v1	GCF_052245655.1_genomic.fna	ncbi	contig	Streptomyces sp. 4N509B	GCF_052245655.1
+GCF_900009285v1	GCF_900009285.1_genomic.fna	ncbi	contig	Streptococcus suis	GCF_900009285.1
+GCF_032488595v1	GCF_032488595.1_genomic.fna	ncbi	contig	Bradyrhizobium sp. SZCCHNR3054	GCF_032488595.1
+GCF_013391365v1	GCF_013391365.1_genomic.fna	ncbi	contig	Ralstonia pickettii	GCF_013391365.1
+GCF_054573755v1	GCF_054573755.1_genomic.fna	ncbi	contig	Escherichia coli	GCF_054573755.1
+GCF_042651265v1	GCF_042651265.1_genomic.fna	ncbi	contig	Kordiimonas lipolytica	GCF_042651265.1
+GCF_059519695v1	GCF_059519695.1_genomic.fna	ncbi	contig	Acinetobacter baumannii	GCF_059519695.1
+GCF_003605365v2	GCF_003605365.2_genomic.fna	ncbi	contig	Siminovitchia fortis	GCF_003605365.2
+GCF_053127455v1	GCF_053127455.1_genomic.fna	ncbi	contig	Acinetobacter baumannii	GCF_053127455.1
+GCF_034108005v1	GCF_034108005.1_genomic.fna	ncbi	contig	Enterobacter ludwigii	GCF_034108005.1
+GCF_001949775v1	GCF_001949775.1_genomic.fna	ncbi	contig	Clostridium perfringens	GCF_001949775.1
+GCF_009815585v1	GCF_009815585.1_genomic.fna	ncbi	contig	Francisella tularensis	GCF_009815585.1
+GCF_037172625v1	GCF_037172625.1_genomic.fna	ncbi	contig	Escherichia coli	GCF_037172625.1
+GCF_022845095v1	GCF_022845095.1_genomic.fna	ncbi	contig	Enterococcus faecium	GCF_022845095.1
+GCF_020161895v1	GCF_020161895.1_genomic.fna	ncbi	contig	Corynebacterium amycolatum	GCF_020161895.1
+GCF_000316505v2	GCF_000316505.2_genomic.fna	ncbi	contig	Escherichia coli 97.0007	GCF_000316505.2
+GCF_044990155v1	GCF_044990155.1_genomic.fna	ncbi	contig	Glaesserella parasuis	GCF_044990155.1
+GCF_040990385v1	GCF_040990385.1_genomic.fna	ncbi	contig	Klebsiella variicola	GCF_040990385.1
+GCF_029526395v1	GCF_029526395.1_genomic.fna	ncbi	contig	Klebsiella pneumoniae	GCF_029526395.1
+GCF_000524235v1	GCF_000524235.1_genomic.fna	ncbi	contig	Fusobacterium sp. OBRC1	GCF_000524235.1
+GCF_020296165v1	GCF_020296165.1_genomic.fna	ncbi	contig	Salmonella enterica	GCF_020296165.1
+GCF_030344565v1	GCF_030344565.1_genomic.fna	ncbi	contig	Klebsiella oxytoca	GCF_030344565.1
+GCF_030360955v1	GCF_030360955.1_genomic.fna	ncbi	contig	Lactococcus lactis	GCF_030360955.1
