@@ -36,6 +36,10 @@ badge <- function(x) {
 
 if (!"tags" %in% names(stats)) stats$tags <- ""
 stats$tag_html <- vapply(stats$tags, badge, character(1))
+stats$sample_html <- sprintf(
+  '<a href="genomes/%s.html">%s</a>',
+  stats$sample, stats$sample
+)
 ```
 
 ## Rad {height="20%"}
@@ -74,7 +78,7 @@ plot_ly(
 ```{r}
 #| title: "Klickbar tabell"
 datatable(
-  stats[, c("sample", "organism_name", "tag_html", "assembly_level",
+  stats[, c("sample_html", "organism_name", "tag_html", "assembly_level",
             "genome_bp", "n_contigs", "n50", "n_is", "n_complete",
             "n_partial", "pct_genome_is", "top_family")],
   escape = FALSE,

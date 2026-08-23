@@ -341,3 +341,6 @@ scripts/build_genome_stats.py inkorporerar nu informationen i genome_tags, och q
 
 ## 2026-08-23
 Den tidigare versionen av workflow/snakefile krashade pga noll IS. Detta är nu korrigerat för i snakefile.
+
+## 2026-08-23
+Ändrade is_oversikt.qmd så att den nu genererar klickbara länkar till individuella sidor för varje genom.

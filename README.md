@@ -77,8 +77,6 @@ quarto render reports/is_oversikt.qmd
 ```  
 → `reports/is_oversikt.html` med plot och klickbar tabell.
 
-**Anteckna**  
-Beslut och seed hör hemma i `notes/labbok.md`, inte varje misslyckat testkommando.
 
 ## Status
 
