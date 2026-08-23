@@ -12,6 +12,30 @@ library(plotly)
 library(DT)
 
 stats <- read_tsv("../results/tables/genome_stats.tsv", show_col_types = FALSE)
+
+colors <- c(
+  paper = "#fde68a",
+  Richelia = "#bfdbfe",
+  Frankia = "#bbf7d0",
+  test = "#e5e7eb",
+  endobiont = "#ddd6fe",
+  periplasmisk = "#fecaca"
+)
+
+badge <- function(x) {
+  if (is.na(x) || !nzchar(x)) return("")
+  parts <- trimws(unlist(strsplit(x, ",")))
+  paste0(vapply(parts, function(p) {
+    bg <- if (p %in% names(colors)) colors[[p]] else "#e5e7eb"
+    sprintf(
+      '<span style="display:inline-block;padding:1px 7px;margin:0 2px 2px 0;border-radius:999px;font-size:0.75rem;background:%s;">%s</span>',
+      bg, htmltools::htmlEscape(p)
+    )
+  }, ""), collapse = " ")
+}
+
+if (!"tags" %in% names(stats)) stats$tags <- ""
+stats$tag_html <- vapply(stats$tags, badge, character(1))
 ```
 
 ## Rad {height="20%"}
@@ -37,7 +61,7 @@ plot_ly(
   x = ~genome_bp / 1e6,
   y = ~pct_genome_is,
   color = ~assembly_level,
-  text = ~paste(sample, organism_name, top_family, sep = "<br>"),
+  text = ~paste(sample, organism_name, tags, top_family, sep = "<br>"),
   hoverinfo = "text",
   type = "scatter",
   mode = "markers"
@@ -50,9 +74,12 @@ plot_ly(
 ```{r}
 #| title: "Klickbar tabell"
 datatable(
-  stats[, c("sample", "organism_name", "assembly_level", "genome_bp",
-            "n_contigs", "n50", "n_is", "n_complete", "n_partial",
-            "pct_genome_is", "top_family")],
+  stats[, c("sample", "organism_name", "tag_html", "assembly_level",
+            "genome_bp", "n_contigs", "n50", "n_is", "n_complete",
+            "n_partial", "pct_genome_is", "top_family")],
+  escape = FALSE,
+  colnames = c("sample", "organism", "taggar", "nivå", "bp",
+               "contigs", "N50", "IS", "c", "p", "% IS", "toppfamilj"),
   options = list(pageLength = 15),
   filter = "top"
 )

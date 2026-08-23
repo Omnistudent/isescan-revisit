@@ -295,12 +295,46 @@ quarto render reports/is_oversikt.qmd
 
 allt gick bra, nu 80 genom
 
-## 2026-08-22
+## 2026-08-23
 Körde
 conda activate isescan-revisit
 python scripts/increase_select_ncbi.py --n-complete 30 --n-contig 30 --seed 44
 download_ncbi_sample.py
+python scripts/sync_samples_from_ncbi.py
+
+## 2026-08-23
+Ändrade /README.md till något mer läsarvänligt.
+
+## 2026-08-23 - Påminner om vilka genom som analyserades i vår artikel.
+Artikeln är Grujcic, Mehrshad, Vigil-Stenman, Lundin & Foster, Current Biology 2025: Stepwise genome evolution … diatom–Richelia.
 
 
-Ändrade /README.md
+Kortnamn i artikeln	Vad det är				En accession en läsare hittar
+ReuHH01			R. euintracellularis, endobiont		slå i Table S1
+ReuHM01			R. euintracellularis, endobiont		Table S1Rint
+RC01			R. intracellularis RC01, periplasmisk	GCA_000613065.1
+RrhiSC01		R. rhizosoleniae SC01, epibiont		Table S1
 
+eMAG
+Texten nämner tio eMAG. Namnen som skrivs ut:
+
+TARA_PON — Candidatus Richelia exalis (Tara Oceans)
+DT104 — periplasmisk (98 % ANI mot RintRC01)
+MO_192.B10
+MO_167.B12
+MO_167.B42 — jämförs med RintRC01 / RrhiSC01
+
+plus fem eMAG i samma klad som ReuHH01/ReuHM01 (endobionter); de döps efter GTDB i figur 1, accession bara i Table S1
+
+De tre MO-genomen behandlas som fritt levande släktingar, inte som säkra epibionter.
+
+## 2026-08-23 - Lade till tags till genom.
+
+Ny fil, config/genome_tags.tsv som har följande format:
+
+GCF_013378015v1	test,test2
+GCF_006547005v1	test,test3
+GCF_000834255v1	tes
+
+Tabellen är tab-separerad.
+scripts/build_genome_stats.py inkorporerar nu informationen i genome_tags, och quarto ser till att en kolumn med tags visas i "genom-sektionen"

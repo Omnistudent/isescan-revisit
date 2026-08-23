@@ -7,26 +7,27 @@ Kolumner (hur de räknas)
 -------------------------
 sample            Id från samples.tsv (t.ex. GCF_013378015v1).
 organism_name     Artnamn från config/ncbi_sample.tsv, matchat på sample.
-                  Saknas rad där → tomt (egna MAG/test utan NCBI-rad).
-taxid             NCBI taxonomy-id från ncbi_sample.tsv, samma matchning.
+tags              Från config/genome_tags.tsv, matchat på sample.
+                  Komma-separerade etiketter (paper,Richelia,...).
+                  Saknas rad → tomt. Skrivs om vid varje körning;
+                  redigera därför genome_tags.tsv, inte den här TSV:en.
+taxid             NCBI taxonomy-id från ncbi_sample.tsv.
 assembly_level    Från samples.tsv om kolumnen finns, annars ncbi_sample.tsv.
-source            Från samples.tsv om den finns (ncbi / eget / test).
+source            Från samples.tsv om den finns.
 accession         Från samples.tsv eller ncbi_sample.tsv.
 fasta             Filnamn i data_raw, inte full sökväg.
-genome_bp         Summa av alla contig-längder i FASTA (sekvensrader; rubriker ignoreras).
-n_contigs         Antal FASTA-poster (antal '>' ).
-n50               Contiglängd där kumulativ summa först når minst halva
-                  genome_bp, när contigs sorterats längst först.
+genome_bp         Summa contig-längder i FASTA.
+n_contigs         Antal FASTA-poster.
+n50               Contiglängd där kumulativ summa når minst halva genome_bp.
 longest_contig    Längsta FASTA-posten.
-n_is              Antal rader i ISEScan-TSV = predikterade element.
-n_complete        Antal rader där type är c (versalokänsligt).
-n_partial         Antal rader där type är p.
-is_bp             Summa isLen (eller len4is). Saknas den: summa (isEnd-isBegin+1).
-                  Överlapp räknas dubbelt — medvetet enkelt mått.
-n_families        Unika värden i family.
-top_family        Vanligaste family (antal element, inte bp).
-pct_genome_is     100 * is_bp / genome_bp. Kan bli >100 vid överlapp.
-isescan_tsv       Sökväg till TSV som användes (felsökning).
+n_is              Antal rader i ISEScan-TSV.
+n_complete        type == c.
+n_partial         type == p.
+is_bp             Summa isLen/len4is, annars isEnd-isBegin+1.
+n_families        Unika family.
+top_family        Vanligaste family (antal, inte bp).
+pct_genome_is     100 * is_bp / genome_bp.
+isescan_tsv       Sökväg till TSV som användes.
 """
 
 from __future__ import annotations
@@ -47,6 +48,12 @@ def parse_args() -> argparse.Namespace:
         default=Path("config/ncbi_sample.tsv"),
         help="Valfri NCBI-katalog med organism_name och taxid",
     )
+    p.add_argument(
+        "--tags",
+        type=Path,
+        default=Path("config/genome_tags.tsv"),
+        help="Valfri fil: sample + tags (komma-separerade)",
+    )
     p.add_argument("--out", type=Path, default=Path("results/tables/genome_stats.tsv"))
     return p.parse_args()
 
@@ -62,6 +69,20 @@ def load_ncbi_lookup(path: Path) -> pd.DataFrame:
         return pd.DataFrame(columns=["sample"])
     keep = [c for c in ("sample", "organism_name", "taxid", "accession", "assembly_level") if c in df.columns]
     return df[keep].drop_duplicates(subset=["sample"], keep="first")
+
+def load_tags(path: Path) -> dict[str, str]:
+    if not path.is_file():
+        return {}
+    df = pd.read_csv(path, sep="\t", dtype=str)
+    if "sample" not in df.columns or "tags" not in df.columns:
+        raise SystemExit(f"{path} måste ha kolumnerna sample och tags")
+    return (
+        df.dropna(subset=["sample"])
+        .drop_duplicates(subset=["sample"], keep="last")
+        .set_index("sample")["tags"]
+        .fillna("")
+        .to_dict()
+    )
 
 def fasta_stats(fasta: Path) -> dict:
     lengths: list[int] = []
@@ -192,6 +213,7 @@ def main() -> None:
 
     ncbi = load_ncbi_lookup(args.ncbi_sample)
     ncbi_map = ncbi.set_index("sample").to_dict(orient="index") if len(ncbi) else {}
+    tag_map = load_tags(args.tags)
 
     rows = []
     for rec in samples.to_dict(orient="records"):
@@ -199,6 +221,8 @@ def main() -> None:
         fasta = data_raw / rec["fasta"].strip()
         tsv = isescan_dir / sample / f"{sample}.tsv"
         extra = pick_extra(rec, ncbi_map.get(sample))
+        if sample in tag_map:
+            extra["tags"] = tag_map[sample]
         if not fasta.is_file():
             print(f"SAKNAR FASTA: {sample} -> {fasta}")
             continue
@@ -210,7 +234,7 @@ def main() -> None:
 
     out = pd.DataFrame(rows)
     preferred = [
-        "sample", "organism_name", "taxid", "assembly_level", "source",
+        "sample", "organism_name", "tags", "taxid", "assembly_level", "source",
         "accession", "fasta", "genome_bp", "n_contigs", "n50",
         "longest_contig", "n_is", "n_complete", "n_partial", "is_bp",
         "pct_genome_is", "n_families", "top_family", "isescan_tsv",
