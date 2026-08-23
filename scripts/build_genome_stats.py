@@ -140,9 +140,9 @@ def summarize_hits(hits: pd.DataFrame) -> dict:
 
     type_col = col(hits, "type")
     family_col = col(hits, "family")
-    begin_col = col(hits, "isBegin")
-    end_col = col(hits, "isEnd")
-    len_col = col(hits, "isLen", "len4is")
+    begin_col = col(hits, "isBegin", "isBegin")
+    end_col = col(hits, "isEnd", "isEnd")
+    len_col = col(hits, "isLen", "len4is", "isLen")
 
     n_complete = n_partial = 0
     if type_col:
@@ -205,7 +205,11 @@ def main() -> None:
     args = parse_args()
     cfg = load_paths(args.paths)
     data_raw = Path(cfg["data_raw"])
-    isescan_dir = Path(cfg.get("isescan_outdir", "results/isescan"))
+    scanner = str(cfg.get("scanner", "isescan")).lower()
+    if scanner == "rust-ise":
+        hit_dir = Path(cfg.get("rustise_outdir", "results/rust-ise"))
+    else:
+        hit_dir = Path(cfg.get("isescan_outdir", "results/isescan"))
 
     samples = pd.read_csv(args.samples, sep="\t", dtype=str)
     if "sample" not in samples.columns or "fasta" not in samples.columns:
@@ -219,7 +223,7 @@ def main() -> None:
     for rec in samples.to_dict(orient="records"):
         sample = rec["sample"].strip()
         fasta = data_raw / rec["fasta"].strip()
-        tsv = isescan_dir / sample / f"{sample}.tsv"
+        tsv = hit_dir / sample / f"{sample}.tsv"
         extra = pick_extra(rec, ncbi_map.get(sample))
         if sample in tag_map:
             extra["tags"] = tag_map[sample]
@@ -227,7 +231,7 @@ def main() -> None:
             print(f"SAKNAR FASTA: {sample} -> {fasta}")
             continue
         if not tsv.is_file():
-            print(f"SAKNAR ISEScan-TSV: {sample} -> {tsv}")
+            print(f"SAKNAR IS-TSV ({scanner}): {sample} -> {tsv}")
             continue
         rows.append(summarize_genome(sample, fasta, tsv, extra))
         print(f"OK  {sample}")

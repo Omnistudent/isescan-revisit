@@ -1,0 +1,5 @@
+sample	fasta	source	assembly_level	organism_name	accession
+GCF_900489725v1	GCF_900489725.1_genomic.fna	ncbi	complete	Mycoplasma mycoides subsp. capri	GCF_900489725.1
+GCF_023035295v1	GCF_023035295.1_genomic.fna	ncbi	complete	Borrelia coriaceae	GCF_023035295.1
+GCF_039783285v1	GCF_039783285.1_genomic.fna	ncbi	complete	Streptococcus thermophilus	GCF_039783285.1
+GCF_014335185v1	GCF_014335185.1_genomic.fna	ncbi	contig	Corynebacterium sp. LK24	GCF_014335185.1

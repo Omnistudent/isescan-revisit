@@ -1,8 +1,17 @@
 # Alla sökvägar på ett ställe. Ändra bara här.
-data_raw: /home/eris/isescan-revisit/data/raw
+data_raw: data/raw
 results: results
 isescan_outdir: results/isescan
+rustise_outdir: results/rust-ise
+filtered_outdir: results/filtered
+rustise_db: resources/rust-ise-db
 
-# ISEScan-inställningar
-nthread: 2
+# Körning
+# scanner: rust-ise | isescan | both
+scanner: rust-ise
+nthread: 1
+rustise_threads: 8
+min_contig_bp: 500
 remove_short_is: false
+rustise_gpu: false
+rustise_strict: false
