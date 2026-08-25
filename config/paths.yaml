@@ -1,8 +1,28 @@
 # Alla sökvägar på ett ställe. Ändra bara här.
-data_raw: /home/eris/isescan-revisit/data/raw
+data_raw: data/raw
 results: results
 isescan_outdir: results/isescan
+rustise_outdir: results/rust-ise
+filtered_outdir: results/filtered
+rustise_db: resources/rust-ise-db
 
-# ISEScan-inställningar
-nthread: 2
+# Körning
+# scanner: rust-ise | isescan | both
+scanner: rust-ise
+nthread: 1
+rustise_threads: 8
+min_contig_bp: 500
 remove_short_is: false
+rustise_gpu: false
+rustise_strict: false
+
+# CNN second pass (ISEScan labels as teacher; does not replace homology)
+use_ml: true
+ml_outdir: results/ml
+ml_merged_outdir: results/ml_merged
+ml_window: 1024
+ml_stride: 256
+ml_min_prob: 0.65
+ml_holdout: GCF_014335185v1
+ml_teacher: isescan
+ml_python: conda run -n isescan-ml --no-capture-output python

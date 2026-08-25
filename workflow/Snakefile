@@ -3,25 +3,86 @@ from pathlib import Path
 
 configfile: "config/paths.yaml"
 
-samples = pd.read_csv("config/samples.tsv", sep="\t").set_index("sample", drop=False)
+samples_tsv = config.get("samples_tsv", "config/samples.tsv")
+samples = pd.read_csv(samples_tsv, sep="\t").set_index("sample", drop=False)
 data_raw = Path(config["data_raw"])
 isescan_dir = Path(config.get("isescan_outdir", "results/isescan"))
-nthread = int(config.get("nthread", 2))
+rustise_dir = Path(config.get("rustise_outdir", "results/rust-ise"))
+filtered_dir = Path(config.get("filtered_outdir", "results/filtered"))
+rustise_db = Path(config.get("rustise_db", "resources/rust-ise-db"))
+scanner = str(config.get("scanner", "rust-ise")).lower()
+nthread = int(config.get("nthread", 1))
+rustise_threads = int(config.get("rustise_threads", 8))
+min_contig_bp = int(config.get("min_contig_bp", 500))
+remove_short_is = bool(config.get("remove_short_is", False))
+rustise_gpu = bool(config.get("rustise_gpu", False))
+rustise_strict = bool(config.get("rustise_strict", False))
+use_ml = bool(config.get("use_ml", False))
+ml_dir = Path(config.get("ml_outdir", "results/ml"))
+ml_merged_dir = Path(config.get("ml_merged_outdir", "results/ml_merged"))
+ml_window = int(config.get("ml_window", 1024))
+ml_stride = int(config.get("ml_stride", 256))
+ml_min_prob = float(config.get("ml_min_prob", 0.65))
+ml_holdout = str(config.get("ml_holdout", "GCF_014335185v1"))
+ml_teacher = str(config.get("ml_teacher", "isescan"))
+ml_python = str(config.get("ml_python", "python"))
+teacher_dir = isescan_dir if ml_teacher == "isescan" else rustise_dir
+SAMPLE_IDS = list(samples.index)
+
 
 def fasta_of(wildcards):
     return str(data_raw / samples.loc[wildcards.sample, "fasta"])
 
+
+def scanner_targets():
+    targets = [str(filtered_dir / f"{s}.fna") for s in SAMPLE_IDS]
+    if scanner in ("isescan", "both"):
+        targets += [str(isescan_dir / s / f"{s}.tsv") for s in SAMPLE_IDS]
+        targets.append("results/tables/isescan_summary.tsv")
+    if scanner in ("rust-ise", "both"):
+        targets += [str(rustise_dir / s / f"{s}.tsv") for s in SAMPLE_IDS]
+        targets.append("results/tables/rustise_summary.tsv")
+    if scanner == "both":
+        targets.append("results/tables/scanner_compare.tsv")
+    if use_ml:
+        targets.append(str(ml_dir / "is_cnn.pt"))
+        targets += [str(ml_dir / s / f"{s}.tsv") for s in SAMPLE_IDS]
+        targets += [str(ml_merged_dir / s / f"{s}.tsv") for s in SAMPLE_IDS]
+        targets.append("results/tables/ml_summary.tsv")
+    return targets
+
+
+def find_result(outdir, ext):
+    outdir = Path(outdir)
+    hits = [
+        p for p in outdir.rglob(f"*.{ext}")
+        if "proteome" not in p.parts and "hmm" not in p.parts
+    ]
+    return str(hits[0]) if hits else ""
+
+
 rule all:
     input:
-        expand(
-            str(isescan_dir / "{sample}" / "{sample}.tsv"),
-            sample=list(samples.index),
-        ),
-        "results/tables/isescan_summary.tsv",
+        scanner_targets(),
+
+
+rule filter_contigs:
+    input:
+        fasta=fasta_of,
+    output:
+        fasta=str(filtered_dir / "{sample}.fna"),
+    params:
+        min_bp=min_contig_bp,
+    shell:
+        r"""
+        python scripts/filter_short_contigs.py \
+          --in {input.fasta} --out {output.fasta} --min-bp {params.min_bp}
+        """
+
 
 rule isescan:
     input:
-        fasta=fasta_of,
+        fasta=str(filtered_dir / "{sample}.fna"),
     output:
         tsv=str(isescan_dir / "{sample}" / "{sample}.tsv"),
         gff=str(isescan_dir / "{sample}" / "{sample}.gff"),
@@ -31,19 +92,21 @@ rule isescan:
     params:
         outdir=str(isescan_dir / "{sample}"),
         nthread=nthread,
+        remove_short="--removeShortIS" if remove_short_is else "",
     threads: nthread
     shell:
         r"""
         set -euo pipefail
         mkdir -p {params.outdir}
-        isescan.py --seqfile {input.fasta} --output {params.outdir} --nthread {params.nthread} > {log} 2>&1
+        isescan.py --seqfile {input.fasta} --output {params.outdir} \
+          --nthread {params.nthread} {params.remove_short} > {log} 2>&1
         tsv=$(find {params.outdir} -name '*.tsv' ! -path '*/proteome/*' ! -path '*/hmm/*' | head -n 1)
         gff=$(find {params.outdir} -name '*.gff' ! -path '*/proteome/*' ! -path '*/hmm/*' | head -n 1)
         sum=$(find {params.outdir} -name '*.sum' ! -path '*/proteome/*' ! -path '*/hmm/*' | head -n 1)
         if [ -z "$tsv" ]; then
-          printf "seqID\tfamily\tcluster\tisBegin\tisEnd\tisLen\ttype\n" > {output.tsv}
+          printf "seqID\tfamily\tcluster\tisBegin\tisEnd\tisLen\ttype\n" > {output.tsv}.raw
         else
-          mv "$tsv" {output.tsv}
+          mv "$tsv" {output.tsv}.raw
         fi
         if [ -z "$gff" ]; then
           printf "##gff-version 3\n" > {output.gff}
@@ -55,29 +118,211 @@ rule isescan:
         else
           mv "$sum" {output.sum}
         fi
+        python scripts/normalize_is_tsv.py --in {output.tsv}.raw --out {output.tsv}
+        rm -f {output.tsv}.raw
         """
 
-rule summarize:
+
+rule rust_ise:
+    input:
+        fasta=str(filtered_dir / "{sample}.fna"),
+    output:
+        tsv=str(rustise_dir / "{sample}" / "{sample}.tsv"),
+        gff=str(rustise_dir / "{sample}" / "{sample}.gff"),
+        sum=str(rustise_dir / "{sample}" / "{sample}.sum"),
+    log:
+        "results/logs/rustise_{sample}.log",
+    params:
+        outdir=str(rustise_dir / "{sample}"),
+        db=str(rustise_db),
+        gpu="--gpu" if rustise_gpu else "",
+        strict="--strict" if rustise_strict else "",
+    threads: rustise_threads
+    shell:
+        r"""
+        set -euo pipefail
+        mkdir -p {params.outdir}
+        rust-ise -i {input.fasta} -o {params.outdir} -t {threads} \
+          --db {params.db} {params.gpu} {params.strict} > {log} 2>&1
+        tsv="{params.outdir}/isscan.tsv"
+        gff="{params.outdir}/isscan.gff"
+        sum="{params.outdir}/isscan.sum"
+        if [ -z "$tsv" ]; then
+          printf "seqID\tfamily\tcluster\tisBegin\tisEnd\tisLen\ttype\n" > {output.tsv}.raw
+        else
+          cp "$tsv" {output.tsv}.raw
+        fi
+        if [ -z "$gff" ]; then
+          printf "##gff-version 3\n" > {output.gff}
+        else
+          cp "$gff" {output.gff}
+        fi
+        if [ -z "$sum" ]; then
+          printf "seqid\tfamily\tnIS\n" > {output.sum}
+        else
+          cp "$sum" {output.sum}
+        fi
+        python scripts/normalize_is_tsv.py --in {output.tsv}.raw --out {output.tsv}
+        rm -f {output.tsv}.raw
+        """
+
+
+def summary_rows(tsv_paths):
+    frames = []
+    for path in tsv_paths:
+        path = Path(path)
+        sample = path.stem
+        df = pd.read_csv(path, sep="\t")
+        if df.empty:
+            frames.append(pd.DataFrame({"sample": [sample], "n_is": [0]}))
+            continue
+        row = {"sample": sample, "n_is": len(df)}
+        if "type" in df.columns:
+            types = df["type"].astype(str).str.lower()
+            row["n_complete"] = int((types == "c").sum())
+            row["n_partial"] = int((types == "p").sum())
+        frames.append(pd.DataFrame([row]))
+    return pd.concat(frames, ignore_index=True)
+
+
+rule summarize_isescan:
     input:
         tsvs=expand(
             str(isescan_dir / "{sample}" / "{sample}.tsv"),
-            sample=list(samples.index),
+            sample=SAMPLE_IDS,
         ),
     output:
         "results/tables/isescan_summary.tsv",
     run:
-        frames = []
-        for path in input.tsvs:
-            path = Path(path)
-            sample = path.stem
-            df = pd.read_csv(path, sep="\t")
-            if df.empty:
-                frames.append(pd.DataFrame({"sample": [sample], "n_is": [0]}))
-            else:
-                row = {"sample": sample, "n_is": len(df)}
-                if "type" in df.columns:
-                    types = df["type"].astype(str).str.lower()
-                    row["n_complete"] = int((types == "c").sum())
-                    row["n_partial"] = int((types == "p").sum())
-                frames.append(pd.DataFrame([row]))
-        pd.concat(frames, ignore_index=True).to_csv(output[0], sep="\t", index=False)
+        summary_rows(input.tsvs).to_csv(output[0], sep="\t", index=False)
+
+
+rule summarize_rustise:
+    input:
+        tsvs=expand(
+            str(rustise_dir / "{sample}" / "{sample}.tsv"),
+            sample=SAMPLE_IDS,
+        ),
+    output:
+        "results/tables/rustise_summary.tsv",
+    run:
+        summary_rows(input.tsvs).to_csv(output[0], sep="\t", index=False)
+
+
+rule compare_scanners:
+    input:
+        isescan=expand(
+            str(isescan_dir / "{sample}" / "{sample}.tsv"),
+            sample=SAMPLE_IDS,
+        ),
+        rustise=expand(
+            str(rustise_dir / "{sample}" / "{sample}.tsv"),
+            sample=SAMPLE_IDS,
+        ),
+        samples=samples_tsv,
+    output:
+        "results/tables/scanner_compare.tsv",
+    params:
+        isescan_dir=str(isescan_dir),
+        rustise_dir=str(rustise_dir),
+    shell:
+        r"""
+        python scripts/compare_scanners.py \
+          --samples {input.samples} \
+          --isescan-dir {params.isescan_dir} \
+          --rustise-dir {params.rustise_dir} \
+          --out {output}
+        """
+
+
+rule ml_windows:
+    input:
+        fastas=expand(str(filtered_dir / "{sample}.fna"), sample=SAMPLE_IDS),
+        teacher=expand(
+            str(teacher_dir / "{sample}" / "{sample}.tsv"),
+            sample=SAMPLE_IDS,
+        ),
+    output:
+        npz=str(ml_dir / "windows.npz"),
+    params:
+        samples=samples_tsv,
+        teacher_dir=str(teacher_dir),
+        window=ml_window,
+        stride=ml_stride,
+        holdout=ml_holdout,
+        py=ml_python,
+    shell:
+        r"""
+        {params.py} scripts/build_ml_windows.py \
+          --paths config/paths.yaml \
+          --samples {params.samples} \
+          --teacher-dir {params.teacher_dir} \
+          --window {params.window} \
+          --stride {params.stride} \
+          --holdout {params.holdout} \
+          --out {output.npz}
+        """
+
+
+rule ml_train:
+    input:
+        npz=str(ml_dir / "windows.npz"),
+    output:
+        model=str(ml_dir / "is_cnn.pt"),
+    params:
+        py=ml_python,
+    shell:
+        r"""
+        {params.py} scripts/train_is_cnn.py --data {input.npz} --out {output.model}
+        """
+
+
+rule ml_predict:
+    input:
+        fasta=str(filtered_dir / "{sample}.fna"),
+        model=str(ml_dir / "is_cnn.pt"),
+    output:
+        tsv=str(ml_dir / "{sample}" / "{sample}.tsv"),
+    params:
+        window=ml_window,
+        stride=ml_stride,
+        min_prob=ml_min_prob,
+        py=ml_python,
+    shell:
+        r"""
+        {params.py} scripts/predict_is_cnn.py \
+          --fasta {input.fasta} \
+          --model {input.model} \
+          --out {output.tsv} \
+          --window {params.window} \
+          --stride {params.stride} \
+          --min-prob {params.min_prob}
+        """
+
+
+def homology_tsv(wildcards):
+    sample = wildcards.sample
+    if scanner in ("isescan", "both"):
+        return str(isescan_dir / sample / f"{sample}.tsv")
+    return str(rustise_dir / sample / f"{sample}.tsv")
+
+
+rule ml_merge:
+    input:
+        base=homology_tsv,
+        ml=str(ml_dir / "{sample}" / "{sample}.tsv"),
+    output:
+        tsv=str(ml_merged_dir / "{sample}" / "{sample}.tsv"),
+    shell:
+        r"""
+        python scripts/merge_ml_hits.py --base {input.base} --ml {input.ml} --out {output.tsv}
+        """
+
+
+rule summarize_ml:
+    input:
+        tsvs=expand(str(ml_merged_dir / "{sample}" / "{sample}.tsv"), sample=SAMPLE_IDS),
+    output:
+        "results/tables/ml_summary.tsv",
+    run:
+        summary_rows(input.tsvs).to_csv(output[0], sep="\t", index=False)

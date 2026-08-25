@@ -1,5 +1,10 @@
 results/isescan/
-results/logs/
+results/rust-ise/
+results/filtered/
+results/ml/
+results/ml_merged/
+resources/rust-ise-db/
+data/raw/
 .snakemake/
 __pycache__/
 *.fna
