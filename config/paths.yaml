@@ -8,7 +8,7 @@ rustise_db: resources/rust-ise-db
 
 # Körning
 # scanner: rust-ise | isescan | both
-scanner: rust-ise
+scanner: isescan # eller rust-ise när setup_rustise.sh är kör
 nthread: 1
 rustise_threads: 8
 min_contig_bp: 500
@@ -17,7 +17,7 @@ rustise_gpu: false
 rustise_strict: false
 
 # CNN second pass (ISEScan labels as teacher; does not replace homology)
-use_ml: true
+use_ml: false
 ml_outdir: results/ml
 ml_merged_outdir: results/ml_merged
 ml_window: 1024

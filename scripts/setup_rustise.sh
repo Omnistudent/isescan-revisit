@@ -5,6 +5,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DB_DIR="${ISSCAN_DB:-$ROOT/resources/rust-ise-db}"
 
+# cargo install lägger binären här; måste finnas på PATH i den här processen
+export PATH="${CARGO_HOME:-$HOME/.cargo}/bin:$PATH"
+
 if ! command -v cargo >/dev/null 2>&1; then
   echo "cargo saknas. Installera Rust från https://rustup.rs" >&2
   exit 1
@@ -30,4 +33,15 @@ else
   echo "IS-DB finns redan i $DB_DIR"
 fi
 
+# WSL/vissa mmseqs-versioner kraschar på fpc/refset.
+# Standard: stäng av FP-kontrollen. Behåll med RUSTISE_DISABLE_FPC=0.
+if [[ "${RUSTISE_DISABLE_FPC:-1}" == "1" ]]; then
+  if [[ -d "$DB_DIR/fpc" ]]; then
+    mv "$DB_DIR/fpc" "$DB_DIR/fpc.bak"
+    echo "fpc avstängd under $DB_DIR (sätt RUSTISE_DISABLE_FPC=0 för att behålla den)"
+  fi
+fi
+
 echo "Klart. rustise_db: $DB_DIR"
+echo "Om rust-ise inte hittas i nya terminaler, lägg till i ~/.bashrc:"
+echo '  export PATH="$HOME/.cargo/bin:$PATH"'
