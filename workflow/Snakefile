@@ -141,23 +141,24 @@ rule rust_ise:
     shell:
         r"""
         set -euo pipefail
+        export PATH="${{HOME}}/.cargo/bin:$PATH"
         mkdir -p {params.outdir}
         rust-ise -i {input.fasta} -o {params.outdir} -t {threads} \
           --db {params.db} {params.gpu} {params.strict} > {log} 2>&1
         tsv="{params.outdir}/isscan.tsv"
         gff="{params.outdir}/isscan.gff"
         sum="{params.outdir}/isscan.sum"
-        if [ -z "$tsv" ]; then
+        if [ ! -f "$tsv" ]; then
           printf "seqID\tfamily\tcluster\tisBegin\tisEnd\tisLen\ttype\n" > {output.tsv}.raw
         else
           cp "$tsv" {output.tsv}.raw
         fi
-        if [ -z "$gff" ]; then
+        if [ ! -f "$gff" ]; then
           printf "##gff-version 3\n" > {output.gff}
         else
           cp "$gff" {output.gff}
         fi
-        if [ -z "$sum" ]; then
+        if [ ! -f "$sum" ]; then
           printf "seqid\tfamily\tnIS\n" > {output.sum}
         else
           cp "$sum" {output.sum}

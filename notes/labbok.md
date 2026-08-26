@@ -344,3 +344,177 @@ Den tidigare versionen av workflow/snakefile krashade pga noll IS. Detta är nu 
 
 ## 2026-08-23
 Ändrade is_oversikt.qmd så att den nu genererar klickbara länkar till individuella sidor för varje genom.
+
+2026-08-24 — Test av Tims pull request (rust-ise + ML)
+Bakgrund
+Tim hade öppnat pull request #1: snabbare IS-skanner rust-ise (Rust + MMseqs2 + IS-databas) som alternativ/komplement till ISEScan, plus ett experimentellt andra steg med en DNA-CNN (maskininlärning). Målet var att testa lokalt utan att ändra GitHub main, sedan eventuellt merge:a.
+Lokal checkout av PR
+Hämtade PR-grenen till en lokal gren (t.ex. pr-1-rust-ise) med git fetch origin pull/1/head:... och checkout. Inget merge till main under dagen — bara lokal test.
+Installation av rust-ise
+
+rust-ise kräver Rust/cargo (inte i conda). Först problem med curl | sh (syntax error); installerade Rust via apt och/eller rustup så att cargo fanns.
+bash scripts/setup_rustise.sh installerade rust-ise under ~/.cargo/bin (måste finnas i PATH: export PATH="$HOME/.cargo/bin:$PATH").
+MMseqs2 i conda-miljön isescan-revisit (conda install -c bioconda mmseqs2 vid behov).
+
+IS-databas (ISOSDB m.m.)
+rust-ise söker mot en unionsdatabas (ISOSDB ∪ ISfinder) under resources/rust-ise-db (mmdb_union/profileDb*, manifest_union.tsv).
+
+ISOSDB = Insertion Sequence Open-Source Database (öppen IS-referens från många genom/MAG, bl.a. Kirsch et al. i Cell Host & Microbe 2024).
+Under felsökning försvann ibland profilfiler under mmdb_union (kvar bara header-filer) → då klagade MMseqs på att databasen inte fanns. Lösning: bygga om med rust-ise build-db --fetch-sources --fetch-host --out resources/rust-ise-db när det behövdes.
+Falskpositiv-kontroll (fpc) — avstängd
+Efter homology-träffar kan rust-ise köra fpc (false-positive control): nukleotidsökning mot fpc/refset för att märka träffar (fpFlag: IS, host, putative, …).
+
+Det steget kraschade under WSL (mmseqs "search" failed i fp_control_module).
+
+Workaround: bytte namn på mappen
+
+resources/rust-ise-db/fpc → resources/rust-ise-db/fpc.bak
+
+så att rust-ise hoppar över FP-steget. Homology-sökningen fungerade då. Utan fpc kan fler falska positiva komma med.
+Snakemake-benchmark
+Körde med ungefär:
+Bashsnakemake -s workflow/Snakefile -c 2 \
+  --config samples_tsv=config/samples_benchmark.tsv scanner=both use_ml=false
+
+Filtrering av korta contigs + ISEScan + rust-ise på fyra genom.
+Problem under dagen: PATH till rust-ise i Snakemake-jobb; skräp i out-mappar; use_ml från paths.yaml schemalade ML trots use_ml=false på kommandoraden tills yaml/regel styrdes om.
+
+Jämförelsetabell (results/tables/scanner_compare.tsv), ungefärliga siffror:
+
+sample		n_isescan	n_rustise	n_overlap	n_isescan_only	n_rustise_only
+GCF_900489725v1	10		17		9		1		8
+GCF_023035295v1	1		0		0		1		0
+GCF_039783285v1	59		66		44		15		22
+GCF_014335185v1	4		7		3		1		4
+
+samplen_isescann_rustisen_overlapn_isescan_onlyn_rustise_onlyGCF_900489725v11017918GCF_023035295v110010GCF_039783285v15966441522GCF_014335185v147314
+rust-ise rapporterade ofta fler partiala element och färre “complete” än ISEScan. Verktygen överlappar delvis men är inte identiska.
+Disk full i WSL
+Slut på utrymme under installation av stora paket.
+
+WSL-disken (ext4.vhdx) hade redan Virtual size 1024 GB; Physical size ~12 GB = faktisk filstorlek på Windows. Behövde alltså inte expandera max — frigöra plats (conda clean, stora cachefiler) och se till att Windows C: har ledigt så vhdx kan växa. Två vhdx hittades under %LOCALAPPDATA%\wsl\; den större (~12,5 GB) är huvudinstallationen.
+Maskininlärning (CNN) — miljö isescan-ml
+Tims andra steg kräver egen conda-miljö med PyTorch (torch).
+
+CUDA-hjul (~820 MB) avbröts upprepade gånger i pip → laddade ner med wget -c och installerade lokalt hjul.
+Filnamn måste vara det fulla wheel-namnet (inte torch-cu128.whl).
+Ytterligare NVIDIA-beroenden (t.ex. nvidia_cusparse_cu12) kunde också behöva wget.
+CPU-torch är enklare om GPU inte syns i WSL.
+
+Efter installation: use_ml: true och Snakemake. Första körningen kunde säga “Nothing to be done” om outputs redan fanns → rensa results/ml och kör om. ML-delen är experimentell (Tim: låg F1 på holdout).
+Artikeln ISOSDB (läst som bakgrund)
+Kirsch, Hryckowian & Duerkop 2024, Cell Host & Microbe: pipeline pseudoR + databas ISOSDB för IS-infogningar i metagenom. Annat lager än vår genom-annotation med ISEScan/rust-ise, men samma fenomen (IS-diversitet, accessory-gener, tarmmikrobiota).
+Beslut / läge vid dagens slut
+
+rust-ise fungerar för benchmark utan fpc.
+scanner_compare.tsv finns.
+Merge av PR:n är rimlig; dokumentera PATH, fpc under WSL, och att ML kräver isescan-ml.
+Efter merge: valfri detektor via scanner=isescan|rust-ise|both och use_ml=true|false.
+Plan: merge + frisk git clone i ny mapp för att testa som tredje person.
+
+Påminnelser
+
+Arbeta med export PATH="$HOME/.cargo/bin:$PATH" när rust-ise ska köras.
+FPC_OFF = test -f resources/rust-ise-db/fpc/refset.dbtype ska faila (mappen bortflyttad).
+Återaktivera fpc: mv .../fpc.bak .../fpc och testa; om panic → bygg om DB eller behåll avstängt.
+
+2026-08-25 - Eget test av Tims pull request
+
+Körde detta i nytt wsl-fönster:
+cd ~
+git clone https://github.com/Omnistudent/isescan-revisit.git isescan-revisit-fresh
+cd isescan-revisit-fresh
+
+# conda-miljö från repot
+conda env create -f env/environment.yml
+conda activate isescan-revisit
+
+# rust-ise + DB (som Tim beskriver)
+curl https://sh.rustup.rs -sSf | sh -s -- -y
+
+source "$HOME/.cargo/env"
+rustc --version
+rustc 1.98.0 (88d9e12ae 2026-08-18)
+cargo --version
+cargo 1.98.0 (797e8a9bc 2026-08-05)
+
+which mmseqs || conda install -c bioconda -c conda-forge mmseqs2 -y
+/home/eris/miniconda3/envs/isescan-revisit/bin/mmseqs
+
+bash scripts/setup_rustise.sh
+
+which rust-ise
+/home/eris/.cargo/bin/rust-ise
+
+ snakemake -s workflow/Snakefile -c 2   --config samples_tsv=config/samples_benchmark.tsv scanner=both use_ml=false
+
+Gav ett felmeddelande pga att det inte fanns några genom att analysera.
+
+Löste detta med 
+cd ~/isescan-revisit-fresh
+conda activate isescan-revisit
+mkdir -p data/raw
+
+# om Tims/ditt download-skript finns:
+ls config/ncbi_sample_benchmark.tsv config/samples_benchmark.tsv scripts/download*.py
+
+python scripts/download_ncbi_sample.py \
+  --samples config/ncbi_sample_benchmark.tsv \
+  --outdir data/raw \
+  --log results/logs/download_failures.log
+
+2026-08-25 - Anpassar skripten för att kunna köras så "out of the box" som möjligt efter pull från github.
+
+Ändrade rader i config/paths.yaml:
+
+use_ml: false
+scanner: isescan # eller rust-ise när setup_rustise.sh är körd
+
+Lade till skriptet scripts/bootstrap.sh
+Gör filen körbar: chmod +x scripts/bootstrap.sh.
+
+Även setup_rustise.sh behöver göras körbar
+
+
+## Snabbstart (ny klon)
+
+```bash
+git clone https://github.com/Omnistudent/isescan-revisit.git
+cd isescan-revisit
+conda env create -f env/environment.yml
+conda activate isescan-revisit
+bash scripts/bootstrap.sh
+snakemake -s workflow/Snakefile -c 2 \
+  --config samples_tsv=config/samples_benchmark.tsv scanner=isescan use_ml=false
+
+
+Sedan en **kort** sektion “Tillval: rust-ise” med `setup_rustise.sh`, PATH och att fpc ofta måste av under WSL.
+
+---
+
+### 5. Vad som *inte* ska in i git  
+Behåll i `.gitignore`: `data/raw/*.fna`, `results/isescan/`, `results/rust-ise/`, `resources/rust-ise-db/`, `.snakemake/`.  
+Däremot **ska** dessa finnas: `config/samples_benchmark.tsv`, `config/ncbi_sample_benchmark.tsv`, tomma `data/raw/.gitkeep`.
+
+---
+
+### 6. Rimlig förväntan  
+Efter det här tar en tredje person:
+
+| Steg | Tid |
+|---|---|
+| conda env | 5–20 min |
+| 4 genom via bootstrap | några minuter |
+| ISEScan på 4 genom | tiotals minuter |
+| rust-ise + DB | extra, och fpc kan behöva av |
+
+Det är så nära “fungerar efter clone” ni kommer utan att checka in hundra MB genom och en IS-databas.
+
+---
+
+**Gör först:** `use_ml: false` + README-snabbstart + bootstrap som bara hämtar benchmark. Det var det som stoppade `isescan-revisit-fresh`. rust-ise-PATH/fpc är steg två.
+
+Vill du att jag skriver ut hela `bootstrap.sh` och den nya README-toppen som färdiga filer att klistra in?
+
+
+
